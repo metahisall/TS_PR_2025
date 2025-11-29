@@ -1,0 +1,41 @@
+export class ShakeAnimator {
+    constructor(element) {
+        this.animationFrameId = null;
+        this.startTime = 0;
+        this.SHAKE_DISTANCE = 3;
+        this.SHAKE_SPEED = 0.5;
+        this.shakeLoop = (timestamp) => {
+            if (!this.startTime)
+                this.startTime = timestamp;
+            const elapsed = timestamp - this.startTime;
+            const offsetX = Math.sin(elapsed * 0.01 * this.SHAKE_SPEED) * this.SHAKE_DISTANCE;
+            const offsetY = Math.cos(elapsed * 0.01 * this.SHAKE_SPEED * 1.5) * this.SHAKE_DISTANCE;
+            this.element.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+            this.animationFrameId = requestAnimationFrame(this.shakeLoop);
+        };
+        this.startShake = () => {
+            if (!this.animationFrameId) {
+                this.startTime = 0;
+                this.animationFrameId = requestAnimationFrame(this.shakeLoop);
+            }
+        };
+        this.stopShake = () => {
+            if (this.animationFrameId) {
+                cancelAnimationFrame(this.animationFrameId);
+                this.animationFrameId = null;
+            }
+            this.element.style.transform = "translate(0,0)";
+        };
+        this.element = element;
+        this.initStyles();
+        this.attachEvents();
+    }
+    initStyles() {
+        this.element.style.transition = "transform 0.1s ease-out";
+        this.element.style.transform = "translate(0,0)";
+    }
+    attachEvents() {
+        this.element.addEventListener("mouseover", this.startShake);
+        this.element.addEventListener("mouseout", this.stopShake);
+    }
+}
